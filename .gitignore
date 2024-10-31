@@ -1,0 +1,6 @@
+out
+*.ckpt
+*.onnx
+*.db
+lightning_logs
+*.cpython-37.pyc
