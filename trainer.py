@@ -9,26 +9,42 @@ import argparse
 
 def main(args):
     checkpoint_callback = ModelCheckpoint(
-        dirpath=os.path.join(os.getcwd(), args.save_dir), filename="nneval-{val_loss:.2f}",
+        dirpath=os.path.join(os.getcwd(), args.save_dir), filename="nneval-{val_loss:.3f}",
         save_top_k=1,
         verbose=True,
         monitor='val_loss',
         mode='min',
         save_last=True
     )
+    logger = TensorBoardLogger(save_dir=args.log_dir)
 
     model = NNEvaluator()
     if args.resume:
         model = model.load_from_checkpoint(args.resume_checkpoint)
-    trainer = pl.Trainer(log_every_n_steps=10, 
-                         val_check_interval=1000, 
-                         callbacks=[checkpoint_callback]
-                         )
+        trainer = pl.Trainer(log_every_n_steps=10, 
+                                val_check_interval=1000, 
+                                callbacks=[checkpoint_callback],
+                                resume_from_checkpoint=args.resume_checkpoint,
+                                accelerator="auto",
+                                devices="auto", 
+                                strategy="auto",
+                                logger=logger, 
+                                )
+    else:
+        trainer = pl.Trainer(log_every_n_steps=10, 
+                                val_check_interval=1000, 
+                                callbacks=[checkpoint_callback],
+                                accelerator="auto",
+                                devices="auto", 
+                                strategy="auto",
+                                logger=logger, 
+                                )
 
     trainer.fit(model, train_dataloaders=QubicDataModule(
         args.train_data,
         args.valid_data,
-        args.valid_data
+        args.valid_data,
+        batch_size = 64
     ))
 
 def train_disc(args):
@@ -40,19 +56,37 @@ def train_disc(args):
         mode='max',
         save_last=True
     )
+    checkpoint_callback2 = ModelCheckpoint(
+        dirpath=os.path.join(os.getcwd(), args.save_dir), filename="nneval-{val_loss/entropy:.3f}",
+        save_top_k=1,
+        verbose=True,
+        monitor='val_loss/entropy',
+        mode='min',
+        save_last=True
+    )
     logger = TensorBoardLogger(save_dir=args.log_dir)
 
     model = DiscEvaluator()
     if args.resume:
         model = model.load_from_checkpoint(args.resume_checkpoint)
-    trainer = pl.Trainer(log_every_n_steps=10, 
-                         val_check_interval=1000, 
-                         callbacks=[checkpoint_callback],
-                         accelerator="auto",
-                         devices="auto", 
-                         strategy="auto",
-                         logger=logger
-                         )
+        trainer = pl.Trainer(log_every_n_steps=10, 
+                                val_check_interval=1000, 
+                                callbacks=[checkpoint_callback, checkpoint_callback2],
+                                accelerator="auto",
+                                devices="auto", 
+                                strategy="auto",
+                                logger=logger, 
+                                resume_from_checkpoint=args.resume_checkpoint
+                                )
+    else:
+        trainer = pl.Trainer(log_every_n_steps=10, 
+                                val_check_interval=1000, 
+                                callbacks=[checkpoint_callback, checkpoint_callback2],
+                                accelerator="auto",
+                                devices="auto", 
+                                strategy="auto",
+                                logger=logger
+                                )
 
     trainer.fit(model, train_dataloaders=QubicDataModule(
         args.train_data,
@@ -72,4 +106,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    train_disc(args)
+    main(args)

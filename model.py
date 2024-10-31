@@ -9,11 +9,11 @@ class NNEvaluator(pl.LightningModule):
     def __init__(self):
         super().__init__()
         self.layer = nn.Sequential(
-            nn.Linear(128, 256),
+            nn.Linear(128, 512),
             nn.LeakyReLU(),
-            nn.Linear(256, 64),
+            nn.Linear(512, 128),
             nn.LeakyReLU(),
-            nn.Linear(64, 32),
+            nn.Linear(128, 32),
             nn.LeakyReLU(),
             nn.Linear(32, 1),
             nn.Sigmoid()
@@ -24,14 +24,15 @@ class NNEvaluator(pl.LightningModule):
         return x
     
     def training_step(self, batch, batch_idx):
-        sleep(0.1)
+        # sleep(0.1)
         x, y = batch
         x = x.view(x.size(0), -1)
         z = self.layer(x)
         loss = F.binary_cross_entropy(z, y)
+        loss_base = F.binary_cross_entropy(y, y)
         # print(z, y)
-        self.log('train_loss', loss)
-        return loss
+        self.log('train_loss', loss - loss_base)
+        return loss - loss_base
     
     def validation_step(self, batch, batch_idx):
         # sleep(0.1)
@@ -39,8 +40,9 @@ class NNEvaluator(pl.LightningModule):
         x = x.view(x.size(0), -1)
         z = self.layer(x)
         loss = F.binary_cross_entropy(z, y)
-        self.log('val_loss', loss)
-        return loss
+        loss_base = F.binary_cross_entropy(y, y)
+        self.log('val_loss', loss - loss_base)
+        return loss - loss_base
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
@@ -107,7 +109,7 @@ class DiscEvaluator(pl.LightningModule):
         return torch.matmul(x, torch.tensor([0, 0.5, 1]))
     
     def training_step(self, batch, batch_idx):
-        # sleep(0.2)
+        # sleep(0.5)
         x, y = batch
         x = x.reshape(-1, 2, 4, 4, 4)
         z = self.layer(x)
