@@ -2,6 +2,7 @@ import pytorch_lightning as pl
 from model import NNEvaluator, DiscEvaluator
 from dataset import QubicDataModule
 from pytorch_lightning.callbacks import ModelCheckpoint
+from pytorch_lightning.loggers import TensorBoardLogger
 import os
 import argparse
 
@@ -39,6 +40,7 @@ def train_disc(args):
         mode='max',
         save_last=True
     )
+    logger = TensorBoardLogger(save_dir=args.log_dir)
 
     model = DiscEvaluator()
     if args.resume:
@@ -48,7 +50,8 @@ def train_disc(args):
                          callbacks=[checkpoint_callback],
                          accelerator="auto",
                          devices="auto", 
-                         strategy="auto"
+                         strategy="auto",
+                         logger=logger
                          )
 
     trainer.fit(model, train_dataloaders=QubicDataModule(
@@ -65,6 +68,7 @@ if __name__ == "__main__":
     parser.add_argument("--resume", action="store_true", default=False)
     parser.add_argument("--resume_checkpoint", default=None)
     parser.add_argument("--save_dir", default=None)
+    parser.add_argument("--log_dir", default="lightning_logs")
 
     args = parser.parse_args()
 

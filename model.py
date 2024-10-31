@@ -66,17 +66,38 @@ class DiscEvaluator(pl.LightningModule):
     def __init__(self):
         super().__init__()
         self.layer = nn.Sequential(
-            nn.Conv3d(2, 64, kernel_size=5, padding=2),
+            nn.Conv3d(2, 64, kernel_size=3, padding=1),
+            nn.BatchNorm3d(64),
             nn.GELU(),
-            BottoleNeck3d(64),
-            BottoleNeck3d(64),
-            BottoleNeck3d(64),
-            BottoleNeck3d(64),
-            BottoleNeck3d(64),
-            nn.MaxPool3d(2, 2),
-            nn.Conv3d(64, 16, kernel_size=2, padding=0),
+            nn.Conv3d(64, 64, kernel_size=3, padding=1),
+            nn.BatchNorm3d(64),
+            nn.GELU(),
+            nn.Conv3d(64, 64, kernel_size=3, padding=1),
+            nn.BatchNorm3d(64),
+            nn.GELU(),
+            nn.Conv3d(64, 128, kernel_size=2, padding=0),
+            nn.BatchNorm3d(128),
+            nn.GELU(),
+
+            nn.Conv3d(128, 128, kernel_size=3, padding=1),
+            nn.BatchNorm3d(128),
+            nn.GELU(),
+            nn.Conv3d(128, 128, kernel_size=3, padding=1),
+            nn.BatchNorm3d(128),
+            nn.GELU(),
+            nn.Conv3d(128, 256, kernel_size=2, padding=0),
+            nn.BatchNorm3d(256),
+            nn.GELU(),
+
+            nn.Conv3d(256, 256, kernel_size=2, padding=0),
+            nn.BatchNorm3d(256),
+            nn.GELU(),
             nn.Flatten(),
-            nn.Linear(16, 3),
+            nn.Linear(256, 128),
+            nn.GELU(),
+            nn.Linear(128, 64),
+            nn.GELU(),
+            nn.Linear(64, 3),
             nn.Softmax(dim=-1)
         )
         self.accuracy = Accuracy(task="multiclass", num_classes=3)
