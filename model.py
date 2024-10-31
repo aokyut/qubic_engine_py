@@ -68,50 +68,26 @@ class DiscEvaluator(pl.LightningModule):
     def __init__(self):
         super().__init__()
         self.layer = nn.Sequential(
-            nn.Conv3d(2, 64, kernel_size=3, padding=1),
-            nn.BatchNorm3d(64),
-            nn.GELU(),
-            nn.Conv3d(64, 64, kernel_size=3, padding=1),
-            nn.BatchNorm3d(64),
-            nn.GELU(),
-            nn.Conv3d(64, 64, kernel_size=3, padding=1),
-            nn.BatchNorm3d(64),
-            nn.GELU(),
-            nn.Conv3d(64, 128, kernel_size=2, padding=0),
-            nn.BatchNorm3d(128),
-            nn.GELU(),
-
-            nn.Conv3d(128, 128, kernel_size=3, padding=1),
-            nn.BatchNorm3d(128),
-            nn.GELU(),
-            nn.Conv3d(128, 128, kernel_size=3, padding=1),
-            nn.BatchNorm3d(128),
-            nn.GELU(),
-            nn.Conv3d(128, 256, kernel_size=2, padding=0),
-            nn.BatchNorm3d(256),
-            nn.GELU(),
-
-            nn.Conv3d(256, 256, kernel_size=2, padding=0),
-            nn.BatchNorm3d(256),
-            nn.GELU(),
-            nn.Flatten(),
-            nn.Linear(256, 128),
-            nn.GELU(),
-            nn.Linear(128, 64),
-            nn.GELU(),
-            nn.Linear(64, 3),
-            nn.Softmax(dim=-1)
+            nn.Linear(128, 512),
+            nn.LeakyReLU(),
+            nn.Linear(512, 128),
+            nn.LeakyReLU(),
+            nn.Linear(128, 32),
+            nn.LeakyReLU(),
+            nn.Linear(32, 3),
+            nn.Softmax(-1)
         )
         self.accuracy = Accuracy(task="multiclass", num_classes=3)
 
     def forward(self, x):
+        # x = x.reshape(-1, 2, 4, 4, 4)
         x = self.layer(x)
         return torch.matmul(x, torch.tensor([0, 0.5, 1]))
     
     def training_step(self, batch, batch_idx):
-        # sleep(0.5)
+        sleep(0.1)
         x, y = batch
-        x = x.reshape(-1, 2, 4, 4, 4)
+        # x = x.reshape(-1, 2, 4, 4, 4)
         z = self.layer(x)
         loss = F.cross_entropy(z, y)
         loss_base = F.cross_entropy(y, y)
@@ -123,9 +99,9 @@ class DiscEvaluator(pl.LightningModule):
     
     def validation_step(self, batch, batch_idx):
         # TODO
-        # sleep(0.1)
+        sleep(0.1)
         x, y = batch
-        x = x.reshape(-1, 2, 4, 4, 4)
+        # x = x.reshape(-1, 2, 4, 4, 4)
         z = self.layer(x)
         loss = F.cross_entropy(z, y)
         loss_base = F.cross_entropy(y, y)

@@ -1,4 +1,4 @@
-from model import NNEvaluator
+from model import NNEvaluator, DiscEvaluator
 from dataset import QubicDataset
 import torch
 import math
@@ -41,7 +41,7 @@ model = NNEvaluator()
 
 # model_check(model)
 
-model = model.load_from_checkpoint("/Users/aokiyuuta/project_python/qubic_engine/8_6_5_depth5_m/last.ckpt", strict=True)
+model = model.load_from_checkpoint("/Users/aokiyuuta/project_python/qubic_engine_py/pretrained/nneval-val_loss=0.039.ckpt", strict=True)
 model.eval()
 
 model.to_onnx("nneval.onnx", torch.zeros(128))
