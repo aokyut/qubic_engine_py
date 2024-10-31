@@ -86,7 +86,7 @@ class DiscEvaluator(pl.LightningModule):
         return torch.matmul(x, torch.tensor([0, 0.5, 1]))
     
     def training_step(self, batch, batch_idx):
-        sleep(0.2)
+        # sleep(0.2)
         x, y = batch
         x = x.reshape(-1, 2, 4, 4, 4)
         z = self.layer(x)
@@ -100,7 +100,7 @@ class DiscEvaluator(pl.LightningModule):
     
     def validation_step(self, batch, batch_idx):
         # TODO
-        sleep(0.1)
+        # sleep(0.1)
         x, y = batch
         x = x.reshape(-1, 2, 4, 4, 4)
         z = self.layer(x)

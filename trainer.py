@@ -45,7 +45,10 @@ def train_disc(args):
         model = model.load_from_checkpoint(args.resume_checkpoint)
     trainer = pl.Trainer(log_every_n_steps=10, 
                          val_check_interval=1000, 
-                         callbacks=[checkpoint_callback]
+                         callbacks=[checkpoint_callback],
+                         accelerator="auto",
+                         devices="auto", 
+                         strategy="auto"
                          )
 
     trainer.fit(model, train_dataloaders=QubicDataModule(
