@@ -69,10 +69,13 @@ class DiscEvaluator(pl.LightningModule):
         super().__init__()
         self.layer = nn.Sequential(
             nn.Linear(128, 512),
+            nn.BatchNorm1d(512),
             nn.LeakyReLU(),
             nn.Linear(512, 128),
+            nn.BatchNorm1d(512),
             nn.LeakyReLU(),
             nn.Linear(128, 32),
+            nn.BatchNorm1d(512),
             nn.LeakyReLU(),
             nn.Linear(32, 3),
             nn.Softmax(-1)

@@ -91,7 +91,7 @@ def train_disc(args):
     trainer.fit(model, train_dataloaders=QubicDataModule(
         args.train_data,
         args.valid_data,
-        args.valid_data, is_disc=True, batch_size=64, label_smoothing=0.2
+        args.valid_data, is_disc=True, batch_size=args.batch_size, label_smoothing=0.2
     ))
 
 
@@ -103,6 +103,7 @@ if __name__ == "__main__":
     parser.add_argument("--resume_checkpoint", default=None)
     parser.add_argument("--save_dir", default=None)
     parser.add_argument("--log_dir", default="lightning_logs")
+    parser.add_argument("--bachi_size", default=64, type=int)
 
     args = parser.parse_args()
 
