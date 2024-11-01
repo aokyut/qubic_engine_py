@@ -103,7 +103,7 @@ if __name__ == "__main__":
     parser.add_argument("--resume_checkpoint", default=None)
     parser.add_argument("--save_dir", default=None)
     parser.add_argument("--log_dir", default="lightning_logs")
-    parser.add_argument("--bachi_size", default=64, type=int)
+    parser.add_argument("--batch_size", default=64, type=int)
 
     args = parser.parse_args()
 
