@@ -72,10 +72,10 @@ class DiscEvaluator(pl.LightningModule):
             nn.BatchNorm1d(512),
             nn.LeakyReLU(),
             nn.Linear(512, 128),
-            nn.BatchNorm1d(512),
+            nn.BatchNorm1d(128),
             nn.LeakyReLU(),
             nn.Linear(128, 32),
-            nn.BatchNorm1d(512),
+            nn.BatchNorm1d(32),
             nn.LeakyReLU(),
             nn.Linear(32, 3),
             nn.Softmax(-1)
