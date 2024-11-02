@@ -70,7 +70,7 @@ def train_disc(args):
     if args.resume:
         model = model.load_from_checkpoint(args.resume_checkpoint)
         trainer = pl.Trainer(log_every_n_steps=10, 
-                                val_check_interval=1000, 
+                                val_check_interval=args.val_interval, 
                                 callbacks=[checkpoint_callback, checkpoint_callback2],
                                 accelerator="auto",
                                 devices="auto", 
@@ -80,7 +80,7 @@ def train_disc(args):
                                 )
     else:
         trainer = pl.Trainer(log_every_n_steps=10, 
-                                val_check_interval=1000, 
+                                val_check_interval=args.val_interval, 
                                 callbacks=[checkpoint_callback, checkpoint_callback2],
                                 accelerator="auto",
                                 devices="auto", 
@@ -104,6 +104,7 @@ if __name__ == "__main__":
     parser.add_argument("--save_dir", default=None)
     parser.add_argument("--log_dir", default="lightning_logs")
     parser.add_argument("--batch_size", default=64, type=int)
+    parser.add_argument("--val_interval", default=1000, type=int)
 
     args = parser.parse_args()
 
