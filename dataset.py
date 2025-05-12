@@ -3,6 +3,7 @@ from torch.utils.data import Dataset, DataLoader
 import torch
 import pytorch_lightning as pl
 from random import random
+from tqdm import tqdm
 
 to_bit_mask = 2 ** torch.arange(64)
 hf_mask1 = 0x5555_5555_5555_5555
@@ -66,21 +67,30 @@ class BitRotation:
 
 
 class QubicDataset(Dataset):
-    def __init__(self, file_name, transforms=None, l=0.0, is_disc=False, label_smoothing=0.01):
-        self.db = sqlite3.connect(file_name)
-        self.cur = self.db.cursor()
+    def __init__(self, file_name, transforms=None, l=0.5, is_disc=False, label_smoothing=0.01):
+        db = sqlite3.connect(file_name)
+        _cur = db.cursor()
+
+        _cur.execute("select att, def, flag, val from board_record")
+
+        rows = _cur.fetchall()
+        self.data = []
+        for a, d, f, v in tqdm(rows):
+            self.data.append((a, d, f, v))
+
         self.l = l
         self.transforms = transforms
         self.is_disc = is_disc
         self.label_smoothing = label_smoothing
     
     def __len__(self):
-        self.cur.execute("SELECT COUNT(*) FROM board_record")
-        return self.cur.fetchone()[0]
+        # self.cur.execute("SELECT COUNT(*) FROM board_record")
+        return len(self.data)
 
     def __getitem__(self, idx):
-        self.cur.execute(f"select att, def, flag, val from board_record where ROWID={idx + 1}")
-        a, d, f, v = self.cur.fetchone()
+        # self.cur.execute(f"select att, def, flag, val from board_record where ROWID={idx + 1}")
+        # a, d, f, v = self.cur.fetchone()
+        a, d, f, v = self.data[idx]
         board = torch.tensor([a, d]).long()
         if self.transforms:
             board = self.transforms(board)
@@ -127,3 +137,6 @@ class QubicDataModule(pl.LightningDataModule):
 
     def test_dataloader(self):
         return DataLoader(self.test_dataset, batch_size=self.batch_size)
+
+    def teardown(self):
+        pass

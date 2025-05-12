@@ -10,11 +10,11 @@ class NNEvaluator(pl.LightningModule):
         super().__init__()
         self.layer = nn.Sequential(
             nn.Linear(128, 512),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Linear(512, 128),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Linear(128, 32),
-            nn.LeakyReLU(),
+            nn.ReLU(),
             nn.Linear(32, 1),
             nn.Sigmoid()
         )

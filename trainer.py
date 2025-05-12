@@ -22,7 +22,7 @@ def main(args):
     if args.resume:
         model = model.load_from_checkpoint(args.resume_checkpoint)
         trainer = pl.Trainer(log_every_n_steps=10, 
-                                val_check_interval=1000, 
+                                val_check_interval=args.val_interval, 
                                 callbacks=[checkpoint_callback],
                                 resume_from_checkpoint=args.resume_checkpoint,
                                 accelerator="auto",
@@ -32,7 +32,7 @@ def main(args):
                                 )
     else:
         trainer = pl.Trainer(log_every_n_steps=10, 
-                                val_check_interval=1000, 
+                                val_check_interval=args.val_interval, 
                                 callbacks=[checkpoint_callback],
                                 accelerator="auto",
                                 devices="auto", 
@@ -44,7 +44,7 @@ def main(args):
         args.train_data,
         args.valid_data,
         args.valid_data,
-        batch_size = 64
+        batch_size = args.batch_size
     ))
 
 def train_disc(args):
@@ -96,6 +96,7 @@ def train_disc(args):
 
 
 if __name__ == "__main__":
+    __spec__ = None
     parser = argparse.ArgumentParser()
     parser.add_argument("train_data")
     parser.add_argument("valid_data")
@@ -108,4 +109,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    train_disc(args)
+    # train_disc(args)
+    main(args)
